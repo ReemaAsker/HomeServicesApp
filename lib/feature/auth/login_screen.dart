@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import '../../logic/authLogic.dart';
+import '../../cores/logic/authLogic.dart';
 import 'package:home_services_app/feature/auth/sign_up_widget.dart';
 
 import '../../cores/app_colors.dart';
 import '../../cores/custom_widgets/custom_button.dart';
 import '../../cores/custom_widgets/custom_snackbar.dart';
 import '../../cores/custom_widgets/custom_text_feild.dart';
-import '../mainUi/homePage.dart';
-import '../mainUi/provider_home_page.dart';
+import '../mainUi/UserScreens/homePage.dart';
+import '../mainUi/providerScreens/provider_home_page.dart';
 
 class LogInScreen extends StatefulWidget {
   const LogInScreen({super.key});
@@ -91,8 +91,7 @@ class _LogInScreenState extends State<LogInScreen> {
                     },
                     suffixIcon: Icon(Icons.password),
                   ),
-                  SizedBox(height: 20),
-                  SizedBox(height: 50),
+                  SizedBox(height: 70),
                   CustomButton(
                     padding: 14.0,
                     text: 'تسجيل الدخول',

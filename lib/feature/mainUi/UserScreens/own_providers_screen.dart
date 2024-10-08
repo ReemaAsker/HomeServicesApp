@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../../cores/custom_widgets/custom_app_bar.dart';
-import '../../cores/custom_widgets/providerCard.dart';
-import '../../cores/models/user.dart';
-import '../../logic/authLogic.dart';
+import '../../../cores/custom_widgets/custom_app_bar.dart';
+import '../../../cores/custom_widgets/providerCard.dart';
+import '../../../cores/models/user.dart';
+import '../../../cores/logic/authLogic.dart';
 
 class OwnProvidersScreen extends StatefulWidget {
   const OwnProvidersScreen({super.key});

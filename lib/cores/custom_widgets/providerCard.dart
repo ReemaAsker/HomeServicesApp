@@ -1,46 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:home_services_app/cores/custom_widgets/rating_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:home_services_app/cores/custom_widgets/rating_widget.dart';
 import 'package:home_services_app/cores/app_colors.dart';
-
-import '../../logic/authLogic.dart';
+import '../logic/authLogic.dart';
 import '../models/user.dart';
 
 class ProviderCard extends StatefulWidget {
-  final AppUser user; //provider / user
+  final AppUser user;
   final String currentUserEmail;
-  final bool evaluated; // Change to non-nullable boolean
+  final bool evaluated;
+
   const ProviderCard({
     Key? key,
     required this.user,
     required this.currentUserEmail,
     this.evaluated = false,
-    // this.isSubscriber = false, // Set default value to false
   }) : super(key: key);
 
   @override
-  State<ProviderCard> createState() => _ProviderCardState();
+  _ProviderCardState createState() => _ProviderCardState();
 }
 
 class _ProviderCardState extends State<ProviderCard> {
-  final _auth = AuthService();
+  final AuthService _auth = AuthService();
   double _userRating = 1;
 
-  // Method to launch email client
   void _sendEmail(
       String providerEmail, String fromEmail, String providerID) async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
       path: providerEmail,
       query: Uri.encodeFull(
-        'subject=Inquiry&body=مرحبا , اريد ان اتقدم بطلب  الحصول على خدمتك فمتى يمكنك الوصول الي ؟&reply-to=$fromEmail',
+        'subject=طلب الحصول على خدمة&body=مرحبا , اريد ان اتقدم بطلب الحصول على خدمتك فمتى يمكنك الوصول الي؟&reply-to=$fromEmail',
       ),
     );
 
     try {
-      // Attempt to launch the email client
       if (await canLaunch(emailLaunchUri.toString())) {
         await launch(emailLaunchUri.toString());
         _auth.addRequest(providerID);
@@ -48,17 +44,10 @@ class _ProviderCardState extends State<ProviderCard> {
         throw 'Could not launch $emailLaunchUri';
       }
     } catch (e) {
-      // Handle error gracefully
-      print('Error launching email: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not launch email client')),
+        const SnackBar(content: Text('Could not launch email client')),
       );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
@@ -70,300 +59,148 @@ class _ProviderCardState extends State<ProviderCard> {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            Expanded(
-                child: widget.user.gender == true
-                    ? widget.user.isProvider
-                        ? Image.asset("assets/man_service.png")
-                        : Image.asset("assets/man_all.png")
-                    : widget.user.isProvider
-                        ? Image.asset("assets/housekeeper.png")
-                        : Image.asset("assets/women_all.png")),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                widget.user.isYearSubscriber
-                    ? Container(
-                        color: Colors.amber, // Background color of the banner
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.star,
-                              color: AppColors.secoundaryColor,
-                            ),
-                            Text(
-                              'مشترك سنوي',
-                              style: TextStyle(
-                                color: AppColors.primaryColor, // Text color
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Text(''),
-                Text(
-                  widget.user.username,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "${widget.user.email}: ايميل ",
-                  textAlign: TextAlign.right,
-                ),
-                Text(
-                  "${widget.user.age}: العمر  ",
-                  textAlign: TextAlign.right,
-                ),
-                Text(
-                  " المنطقة : ${widget.user.area}",
-                  textAlign: TextAlign.right,
-                ),
-                if (widget.user.isProvider) ...[
-                  const SizedBox(height: 8),
-                  Text("نوع الخدمة: ${widget.user.serviceDescription ?? ''}"),
-                  Text(
-                      "سعر الخدمة/ساعة: ${widget.user.servicePrice?.toStringAsFixed(2) ?? 'N/A'} ريال"),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      DisplayRating(userId: widget.user.id!),
-                      // RatingBarIndicator(
-                      //   rating: widget.user.ratingReview ?? 0.0,
-                      //   itemBuilder: (context, index) => const Icon(
-                      //     Icons.star,
-                      //     color: Colors.amber,
-                      //   ),
-                      //   itemCount: 5,
-                      //   itemSize: 24.0,
-                      //   direction: Axis.horizontal,
-                      // ),
-                      const SizedBox(width: 8),
-                      const Text(': التقييم '),
-                    ],
-                  ),
-                ],
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    widget.evaluated
-                        ? Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: StreamBuilder<bool>(
-                              stream: _auth.hasUserRated(widget.user.id!),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return CircularProgressIndicator(); // Loading indicator
-                                }
-
-                                if (snapshot.hasError) {
-                                  return Text('Error'); // Handle errors
-                                }
-
-                                bool hasRated = snapshot.data ?? false;
-
-                                return ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        hasRated ? Colors.grey : Colors.amber,
-                                  ),
-                                  onPressed: hasRated
-                                      ? null // Disable the button if the user has already rated
-                                      : () {
-                                          // Show the rating popup
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                              title: Center(
-                                                child: Text(
-                                                  'أضف تقييمك للخدمة',
-                                                  style: TextStyle(
-                                                      color: AppColors
-                                                          .primaryColor),
-                                                ),
-                                              ),
-                                              content: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  // Text(
-                                                  //   ':أضف تفييمك للخدمة',
-                                                  //   style: TextStyle(
-                                                  //       fontWeight:
-                                                  //           FontWeight.bold),
-                                                  // ),
-                                                  SizedBox(height: 16.0),
-                                                  RatingBar.builder(
-                                                    initialRating: 0,
-                                                    minRating: 1,
-                                                    direction: Axis.horizontal,
-                                                    allowHalfRating: false,
-                                                    itemCount: 5,
-                                                    itemPadding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 4.0),
-                                                    itemBuilder: (context, _) =>
-                                                        Icon(
-                                                      Icons.star,
-                                                      color: Colors.amber,
-                                                    ),
-                                                    onRatingUpdate: (rating) {
-                                                      _userRating =
-                                                          rating.toDouble();
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context)
-                                                        .pop(); // Close dialog
-                                                  },
-                                                  child: Text('اغلاق'),
-                                                ),
-                                                ElevatedButton(
-                                                  style: ButtonStyle(
-                                                    foregroundColor:
-                                                        WidgetStateProperty.all(
-                                                            AppColors
-                                                                .primaryColor),
-                                                    backgroundColor:
-                                                        WidgetStateProperty.all(
-                                                            Colors.amber),
-                                                  ),
-                                                  onPressed: () {
-                                                    _auth.evaluatedProvider(
-                                                        widget.user.id!,
-                                                        _userRating);
-
-                                                    // Close the dialog after submitting the rating
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: Text('اضاقة التقييم'),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                  child: Text(
-                                    hasRated ? 'تم التقييم' : '!اضف تقييمك',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                );
-                              },
-                            ),
-                          )
-                        : Text(""),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                      ),
-                      onPressed: () {
-                        _sendEmail(widget.user.email, widget.currentUserEmail,
-                            widget.user.id!); // Pass the provider's email
-                      },
-                      child: Text(
-                        'تواصل الآن',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                widget.evaluated
-                    ? ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Center(
-                                child: Text(
-                                  'أضف تقييمك للخدمة',
-                                  style:
-                                      TextStyle(color: AppColors.primaryColor),
-                                ),
-                              ),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Text(
-                                  //   ':أضف تفييمك للخدمة',
-                                  //   style: TextStyle(
-                                  //       fontWeight:
-                                  //           FontWeight.bold),
-                                  // ),
-                                  SizedBox(height: 16.0),
-                                  RatingBar.builder(
-                                    initialRating: 0,
-                                    minRating: 1,
-                                    direction: Axis.horizontal,
-                                    allowHalfRating: false,
-                                    itemCount: 5,
-                                    itemPadding:
-                                        EdgeInsets.symmetric(horizontal: 4.0),
-                                    itemBuilder: (context, _) => Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                    ),
-                                    onRatingUpdate: (rating) {
-                                      _userRating = rating.toDouble();
-                                    },
-                                  ),
-                                ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop(); // Close dialog
-                                  },
-                                  child: Text('اغلاق'),
-                                ),
-                                ElevatedButton(
-                                  style: ButtonStyle(
-                                    foregroundColor: WidgetStateProperty.all(
-                                        AppColors.primaryColor),
-                                    backgroundColor:
-                                        WidgetStateProperty.all(Colors.amber),
-                                  ),
-                                  onPressed: () {
-                                    _auth.evaluatedProvider(
-                                        widget.user.id!, _userRating);
-                                    _auth.removeProviderFromCurrentUser(
-                                        widget.user.id!);
-
-                                    // Close the dialog after submitting the rating
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text('اضاقة التقييم'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-
-                        //  {
-                        //   //////////////////////////////
-                        //   _auth.removeProviderFromCurrentUser(widget.user.id!);
-                        // },
-                        child: Text(
-                          'انهاء الخدمة',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      )
-                    : Text("")
-              ],
-            ),
+            _buildProviderImage(),
+            const SizedBox(width: 16),
+            _buildProviderDetails(context),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildProviderImage() {
+    final isMale = widget.user.gender == true;
+    final isProvider = widget.user.isProvider;
+    final assetPath = isMale
+        ? (isProvider ? "assets/man_service.png" : "assets/man_all.png")
+        : (isProvider ? "assets/housekeeper.png" : "assets/women_all.png");
+    return Expanded(child: Image.asset(assetPath));
+  }
+
+  Widget _buildProviderDetails(BuildContext context) {
+    return Expanded(
+      flex: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (widget.user.isYearSubscriber) _buildSubscriptionBanner(),
+          Text(
+            widget.user.username,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text("${widget.user.email}: ايميل"),
+          Text("${widget.user.age}: العمر"),
+          Text("المنطقة: ${widget.user.area}"),
+          if (widget.user.isProvider) ..._buildServiceDetails(),
+          const SizedBox(height: 8),
+          widget.evaluated
+              ? _buildRatingButton(context)
+              : !widget.user.isProvider
+                  ? Text("")
+                  : _buildContactButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionBanner() {
+    return Container(
+      color: Colors.amber,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.star, color: AppColors.secoundaryColor),
+          const SizedBox(width: 4),
+          Text(
+            'مشترك سنوي',
+            style: TextStyle(
+              color: AppColors.primaryColor,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildServiceDetails() {
+    return [
+      Text("نوع الخدمة: ${widget.user.serviceDescription ?? ''}"),
+      Text(
+          "سعر الخدمة/ساعة: ${widget.user.servicePrice?.toStringAsFixed(2) ?? 'N/A'} ريال"),
+      Row(
+        children: [
+          DisplayRating(userId: widget.user.id!),
+          const SizedBox(width: 8),
+          const Text(': التقييم'),
+        ],
+      ),
+    ];
+  }
+
+  Widget _buildRatingButton(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+      onPressed: () => _showRatingDialog(context),
+      child: const Text(
+        'انهاء وتقييم الخدمة',
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  void _showRatingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Center(
+          child: Text('أضف تقييمك للخدمة',
+              style: TextStyle(color: AppColors.primaryColor)),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 16),
+            RatingBar.builder(
+              initialRating: 0,
+              minRating: 1,
+              direction: Axis.horizontal,
+              allowHalfRating: false,
+              itemCount: 5,
+              itemPadding: const EdgeInsets.symmetric(horizontal: 4),
+              itemBuilder: (context, _) =>
+                  const Icon(Icons.star, color: Colors.amber),
+              onRatingUpdate: (rating) => _userRating = rating.toDouble(),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('اغلاق'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+            onPressed: () {
+              _auth.evaluateProvider(widget.user.id!, _userRating);
+              _auth.removeProviderFromCurrentUser(widget.user.id!);
+              Navigator.of(context).pop();
+            },
+            child: const Text('اضافة التقييم'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryColor),
+      onPressed: () => _sendEmail(
+          widget.user.email, widget.currentUserEmail, widget.user.id!),
+      child: const Text('تواصل الآن', style: TextStyle(color: Colors.white)),
     );
   }
 }

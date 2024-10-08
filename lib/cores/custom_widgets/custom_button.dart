@@ -27,8 +27,6 @@ class CustomButton extends StatelessWidget {
               colors: [
                 AppColors.primaryColor,
                 AppColors.lightPrimaryColor,
-
-                // AppColors.lightPrimaryColor,
               ]),
         ),
         child: Center(

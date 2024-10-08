@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AppUser {
@@ -6,14 +5,14 @@ class AppUser {
   String username;
   String email;
   int age;
-  String password; // You may not want to store this in plain text in production
-  bool isProvider; // Role can be either(false)'عميل' or (true)'مزود خدمة'
+  String password; // Avoid storing in plain text in production
+  bool isProvider; // Role can be either (false) 'عميل' or (true) 'مزود خدمة'
   String area; // User area
-  String? serviceDescription; // , for service providers
-  double? servicePrice; // , for service providers
+  String? serviceDescription; // For service providers
+  double? servicePrice; // For service providers
   bool isYearSubscriber;
-  bool gender; // true:male , false:female
-  List<AppUser>? myProviders;
+  bool gender; // true: male, false: female
+
   AppUser({
     required this.username,
     required this.email,
@@ -25,48 +24,61 @@ class AppUser {
     this.servicePrice,
     required this.isYearSubscriber,
     required this.gender,
-    this.myProviders,
     this.id,
   });
-  factory AppUser.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map<String, dynamic>;
 
-    AppUser? appUser;
+  factory AppUser.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+
     try {
-      appUser = AppUser(
-          id: doc.id ?? '',
-          username: data['name'] ?? '',
-          isProvider: data['isProvider'] ?? false,
-          area: data['area'] ?? '',
-          age: data['age'] ?? 0,
-          serviceDescription: data['serviceDesc'] ?? '',
-          servicePrice: double.parse(data['servicePrice'].toString()) ?? 0,
-          gender: data['gender'] ?? false,
-          email: data['email'] ?? '',
-          password: data['password'] ?? '',
-          isYearSubscriber: data['isYearSubscriber'] ?? false,
-          myProviders: []);
+      return AppUser(
+        id: doc.id,
+        username: data['name'] ?? '',
+        email: data['email'] ?? '',
+        age: data['age'] ?? 0,
+        password: data['password'] ?? '', // Consider removing in production
+        isProvider: data['isProvider'] ?? false,
+        area: data['area'] ?? '',
+        serviceDescription: data['serviceDesc'],
+        servicePrice: _parseServicePrice(data['servicePrice']),
+        isYearSubscriber: data['isYearSubscriber'] ?? false,
+        gender: data['gender'] ?? false,
+      );
     } catch (e, stackTrace) {
-      print("hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-      print(e.toString());
+      print("Error creating AppUser from Firestore: $e");
       print(stackTrace);
+      return AppUser(
+        id: doc.id,
+        username: '',
+        email: '',
+        age: 0,
+        password: '',
+        isProvider: false,
+        area: '',
+        isYearSubscriber: false,
+        gender: false,
+      );
     }
-    return appUser!;
   }
-  // Factory method to create AppUser from a map
+
   factory AppUser.fromMap(Map<String, dynamic> map) {
     return AppUser(
-        id: map['id'] ?? '',
-        username: map['name'] ?? '',
-        isProvider: map['isProvider'] ?? false,
-        area: map['area'] ?? '',
-        age: map['age'] ?? 0,
-        serviceDescription: map['serviceDesc'] ?? '',
-        servicePrice: double.parse(map['servicePrice'].toString()) ?? 0,
-        gender: map['gender'] ?? false,
-        email: map['email'] ?? '',
-        password: map['password'] ?? '',
-        isYearSubscriber: map['isYearSubscriber'],
-        myProviders: map['myProviders'] ?? []);
+      id: map['id'] ?? '',
+      username: map['name'] ?? '',
+      email: map['email'] ?? '',
+      age: map['age'] ?? 0,
+      password: map['password'] ?? '', // Consider removing in production
+      isProvider: map['isProvider'] ?? false,
+      area: map['area'] ?? '',
+      serviceDescription: map['serviceDesc'],
+      servicePrice: _parseServicePrice(map['servicePrice']),
+      isYearSubscriber: map['isYearSubscriber'] ?? false,
+      gender: map['gender'] ?? false,
+    );
+  }
+
+  static double? _parseServicePrice(dynamic price) {
+    if (price == null) return null;
+    return double.tryParse(price.toString());
   }
 }

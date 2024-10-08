@@ -6,7 +6,7 @@ import 'package:home_services_app/feature/auth/login_screen.dart';
 import '../../cores/custom_widgets/custom_button.dart';
 import '../../cores/custom_widgets/custom_snackbar.dart';
 import '../../cores/custom_widgets/custom_text_feild.dart';
-import '../../logic/authLogic.dart';
+import '../../cores/logic/authLogic.dart';
 
 class SignUpWidget extends StatefulWidget {
   @override
@@ -64,7 +64,7 @@ class _MyFormWidgetState extends State<SignUpWidget> {
     if (_formKey.currentState!.validate()) {
       if (passwordController.value.toString() ==
           confirmpasswordController.value.toString()) {
-        final user = await _auth.CreateUser(AppUser(
+        final user = await _auth.createUser(AppUser(
             username: usernameController.text.trim(),
             email: emailController.text.trim(),
             age: int.parse(ageController.text.trim()),

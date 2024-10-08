@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
-import '../../logic/authLogic.dart';
+import '../logic/authLogic.dart';
 
 class DisplayRating extends StatelessWidget {
   final String userId;
@@ -14,16 +14,15 @@ class DisplayRating extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<double>(
       stream:
-          _auth.ratingOfCurrentProvider(userId), // Use Stream instead of Future
+          _auth.ratingOfCurrentProvider(userId), 
       builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Show loading indicator
+          return const CircularProgressIndicator(); 
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}'); // Handle error state
+          return Text('Error: ${snapshot.error}'); 
         } else {
-          // When the data is available, display the RatingBarIndicator
           return RatingBarIndicator(
-            rating: snapshot.data ?? 0.0, // Use the fetched rating
+            rating: snapshot.data ?? 0.0, 
             itemBuilder: (context, index) => const Icon(
               Icons.star,
               color: Colors.amber,
