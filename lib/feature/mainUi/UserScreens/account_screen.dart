@@ -1,11 +1,12 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:home_services_app/cores/logic/firebaseLogic.dart';
 import '../../../cores/custom_widgets/custom_app_bar.dart';
 import '../../../cores/custom_widgets/custom_button.dart';
 import '../../../cores/custom_widgets/custom_snackbar.dart';
 import '../../../cores/custom_widgets/custom_text_feild.dart';
-import '../../../cores/logic/authLogic.dart';
+import '../../../cores/logic/firebaseLogic.dart';
 import '../../../cores/models/user.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  final AuthService _auth = AuthService();
+  final  _auth = FirebaseServices();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // TextEditingControllers for the form fields

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import '../../cores/logic/authLogic.dart';
+import 'package:home_services_app/cores/logic/firebaseLogic.dart';
 import 'package:home_services_app/feature/auth/sign_up_widget.dart';
 
 import '../../cores/app_colors.dart';
@@ -18,7 +18,7 @@ class LogInScreen extends StatefulWidget {
 }
 
 class _LogInScreenState extends State<LogInScreen> {
-  final _auth = AuthService();
+  final _auth = FirebaseServices();
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();

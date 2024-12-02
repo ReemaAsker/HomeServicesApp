@@ -3,7 +3,8 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:home_services_app/cores/custom_widgets/rating_widget.dart';
 import 'package:home_services_app/cores/app_colors.dart';
-import '../logic/authLogic.dart';
+import '../../feature/mainUi/UserScreens/equipment_of_current_provider.dart';
+import '../logic/firebaseLogic.dart';
 import '../models/user.dart';
 
 class ProviderCard extends StatefulWidget {
@@ -23,32 +24,8 @@ class ProviderCard extends StatefulWidget {
 }
 
 class _ProviderCardState extends State<ProviderCard> {
-  final AuthService _auth = AuthService();
+  final _auth = FirebaseServices();
   double _userRating = 1;
-
-  void _sendEmail(
-      String providerEmail, String fromEmail, String providerID) async {
-    final Uri emailLaunchUri = Uri(
-      scheme: 'mailto',
-      path: providerEmail,
-      query: Uri.encodeFull(
-        'subject=طلب الحصول على خدمة&body=مرحبا , اريد ان اتقدم بطلب الحصول على خدمتك فمتى يمكنك الوصول الي؟&reply-to=$fromEmail',
-      ),
-    );
-
-    try {
-      if (await canLaunch(emailLaunchUri.toString())) {
-        await launch(emailLaunchUri.toString());
-        _auth.addRequest(providerID);
-      } else {
-        throw 'Could not launch $emailLaunchUri';
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not launch email client')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -196,11 +173,24 @@ class _ProviderCardState extends State<ProviderCard> {
   }
 
   Widget _buildContactButton() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryColor),
-      onPressed: () => _sendEmail(
-          widget.user.email, widget.currentUserEmail, widget.user.id!),
-      child: const Text('تواصل الآن', style: TextStyle(color: Colors.white)),
+    return Column(
+      children: [
+        ElevatedButton(
+          style:
+              ElevatedButton.styleFrom(backgroundColor: AppColors.primaryColor),
+          onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EquipmentOfCurrentProvider(
+                    servicePrice: widget.user.servicePrice!,
+                    providerId: widget.user.id!,
+                    providerEmail: widget.user.email,
+                    currentUserEmail: widget.currentUserEmail),
+              )),
+          child: const Text('تفاصيل الادوات وطلب الخدمة',
+              style: TextStyle(color: Colors.white)),
+        ),
+      ],
     );
   }
 }

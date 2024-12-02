@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:home_services_app/cores/models/user.dart';
 
-class AuthService {
+import '../models/equipment.dart';
+
+class FirebaseServices {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -248,6 +250,120 @@ class AuthService {
       print('Provider ID $providerId removed successfully from user $userId.');
     } catch (e) {
       print('Error removing provider ID: $e');
+    }
+  }
+
+  // ##############################Equipment
+
+  Future<void> addEquipment(Equipment equipment) async {
+    try {
+      // Reference to the Firestore collection
+      CollectionReference equipmentCollection =
+          FirebaseFirestore.instance.collection('equipment');
+
+      // Query the collection to check for duplicates
+      QuerySnapshot query = await equipmentCollection
+          .where('name', isEqualTo: equipment.name)
+          .where('price', isEqualTo: equipment.price)
+          .where('isPrimary', isEqualTo: equipment.isPrimary)
+          .get();
+
+      if (query.docs.isEmpty) {
+        // No duplicate found, proceed to add the equipment
+        DocumentReference docRef =
+            await equipmentCollection.add(equipment.toMap());
+        String newEquipmentId = docRef.id;
+        // Update the document with its ID
+        await docRef.update({
+          'id': docRef.id, // Store the document ID as a field
+        });
+
+        // Reference to the current provider's document in Firestore
+        DocumentReference providerDoc = FirebaseFirestore.instance
+            .collection('User')
+            .doc(_auth.currentUser!.uid);
+
+        // Add the new equipment ID to the equipmentIds list in the provider's document
+        await providerDoc.update({
+          'equipmentIds': FieldValue.arrayUnion(
+              [newEquipmentId]) // Add the new equipment ID to the list
+        });
+
+        print('Equipment added successfully and ID added to provider');
+      } else {
+        // Duplicate found, do not add equipment
+        print('Duplicate equipment found, no new equipment added');
+      }
+    } catch (e) {
+      print('Failed to add equipment or update provider: $e');
+    }
+  }
+
+  /// Retrieves a stream of the user's equipment details.
+  Stream<List<Equipment>> getUserEquipmentStream(String provider_id) {
+    return _firestore
+        .collection('User')
+        .doc(provider_id) //user.uid
+        .snapshots()
+        .asyncMap((userDocSnapshot) async {
+      if (userDocSnapshot.exists) {
+        List<dynamic> equipmentIds = userDocSnapshot['equipmentIds'] ?? [];
+
+        if (equipmentIds.isNotEmpty) {
+          // Fetch the equipment details as a stream from Firestore.
+          QuerySnapshot equipmentSnapshot = await _firestore
+              .collection('equipment')
+              .where(FieldPath.documentId, whereIn: equipmentIds)
+              .get();
+
+          return equipmentSnapshot.docs
+              .map((doc) =>
+                  Equipment.fromJson(doc.data() as Map<String, dynamic>))
+              .toList();
+        }
+      }
+      return [];
+    });
+
+    // If no user found, return an empty stream.
+    return Stream.value([]);
+  }
+
+  ///
+  // ##### Delete equipment by ID
+// Delete equipment by ID and remove its ID from the user's equipmentIds list
+  Future<void> deleteEquipment(String equipmentId) async {
+    try {
+      // Step 1: Get the current user
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Step 2: Fetch the user document
+        DocumentReference userDocRef =
+            _firestore.collection('User').doc(user.uid);
+        DocumentSnapshot userDoc = await userDocRef.get();
+
+        if (userDoc.exists) {
+          // Step 3: Get the equipmentIds list
+          List<dynamic> equipmentIds = userDoc['equipmentIds'] ?? [];
+
+          // Step 4: Remove the equipmentId from the list
+          equipmentIds.remove(equipmentId);
+
+          // Step 5: Update the user document with the new equipmentIds list
+          await userDocRef.update({'equipmentIds': equipmentIds});
+
+          // Step 6: Delete the equipment
+          await _firestore.collection('equipment').doc(equipmentId).delete();
+          print(
+              'Equipment deleted successfully and ID removed from user equipment list');
+        } else {
+          print('User document not found.');
+        }
+      } else {
+        print('No user is currently logged in.');
+      }
+    } catch (e) {
+      print('Error deleting equipment: $e');
     }
   }
 }

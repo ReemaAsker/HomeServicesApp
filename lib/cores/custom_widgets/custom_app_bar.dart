@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
+
+import 'package:home_services_app/cores/logic/firebaseLogic.dart';
+
 import '../../feature/auth/login_screen.dart';
-import '../logic/authLogic.dart';
 import '../app_colors.dart';
 import '../models/user.dart';
 
 class CustomAppBar extends StatefulWidget {
   final String? title;
+  final bool withReturnArrow;
 
-  const CustomAppBar({super.key, required this.title});
+  CustomAppBar({
+    Key? key,
+    this.title,
+    this.withReturnArrow = false,
+  }) : super(key: key);
 
   @override
   State<CustomAppBar> createState() => _CustomAppBarState();
 }
 
 class _CustomAppBarState extends State<CustomAppBar> {
-  final _auth = AuthService();
+  final _auth = FirebaseServices();
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +58,18 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   AppBar _buildMainAppBar(AppUser user) {
     return AppBar(
+      actions: [
+        widget.withReturnArrow
+            ? IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  Icons.keyboard_arrow_right_outlined,
+                  size: 30,
+                ),
+                color: Colors.white,
+              )
+            : Text('')
+      ],
       centerTitle: true,
       toolbarHeight: 80,
       backgroundColor:
@@ -82,7 +101,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 Icons.logout,
                 color: user.isYearSubscriber
                     ? AppColors.secoundaryColor
-                    : Colors.amber,
+                    : Colors.white,
                 size: 20,
               ),
             ),
@@ -92,7 +111,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 fontWeight: FontWeight.bold,
                 color: user.isYearSubscriber
                     ? AppColors.secoundaryColor
-                    : Colors.amber,
+                    : Colors.white,
               ),
             ),
           ],
@@ -147,7 +166,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
       widget.title!,
       style: TextStyle(
         fontWeight: FontWeight.bold,
-        color: user.isYearSubscriber ? AppColors.secoundaryColor : Colors.amber,
+        color: user.isYearSubscriber ? AppColors.secoundaryColor : Colors.white,
       ),
     );
   }

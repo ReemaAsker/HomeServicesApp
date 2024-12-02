@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:home_services_app/cores/logic/firebaseLogic.dart';
 
 import '../../../cores/custom_widgets/custom_app_bar.dart';
 import '../../../cores/custom_widgets/providerCard.dart';
 import '../../../cores/models/user.dart';
-import '../../../cores/logic/authLogic.dart';
 
 class OwnProvidersScreen extends StatefulWidget {
   const OwnProvidersScreen({super.key});
@@ -14,7 +14,7 @@ class OwnProvidersScreen extends StatefulWidget {
 }
 
 class _OwnProvidersScreenState extends State<OwnProvidersScreen> {
-  final _auth = AuthService();
+  final _auth = FirebaseServices();
 
   @override
   Widget build(BuildContext context) {

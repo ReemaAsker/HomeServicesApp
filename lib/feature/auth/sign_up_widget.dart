@@ -1,12 +1,14 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:home_services_app/cores/logic/firebaseLogic.dart';
 import 'package:home_services_app/cores/models/user.dart';
+import 'package:home_services_app/cores/static_info.dart';
 import 'package:home_services_app/feature/auth/login_screen.dart';
 
 import '../../cores/custom_widgets/custom_button.dart';
 import '../../cores/custom_widgets/custom_snackbar.dart';
 import '../../cores/custom_widgets/custom_text_feild.dart';
-import '../../cores/logic/authLogic.dart';
+import '../../cores/logic/firebaseLogic.dart';
 
 class SignUpWidget extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class SignUpWidget extends StatefulWidget {
 }
 
 class _MyFormWidgetState extends State<SignUpWidget> {
-  final _auth = AuthService();
+  final _auth = FirebaseServices();
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
@@ -32,21 +34,7 @@ class _MyFormWidgetState extends State<SignUpWidget> {
   String _selectedRole = 'عميل';
   String _selectedGender = 'ذكر';
   String? _selectedArea;
-  List<String> _areas = [
-    'الرياض',
-    'مكة المكرمة',
-    'المدينة المنورة',
-    'المنطقة الشرقية',
-    'عسير',
-    'الباحة',
-    'حائل',
-    'الجوف',
-    'تبوك',
-    'نجران',
-    'جازان',
-    'القصيم',
-    'الحدود الشمالية'
-  ]; // Sample area list
+  String? _selectedService;
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -73,7 +61,7 @@ class _MyFormWidgetState extends State<SignUpWidget> {
             gender: _selectedGender == 'ذكر',
             isYearSubscriber: false,
             // ratingReview: 0,
-            serviceDescription: serviceDescriptionController.text.trim(),
+            serviceDescription: _selectedService!,
             servicePrice: servicePriceController.text.trim().isEmpty
                 ? -1
                 : double.parse(servicePriceController.text.trim()),
@@ -358,7 +346,7 @@ class _MyFormWidgetState extends State<SignUpWidget> {
                             alignment: Alignment
                                 .centerRight, // Align the selected value text to the right
                             value: _selectedArea,
-                            items: _areas.map((String area) {
+                            items: areas.map((String area) {
                               return DropdownMenuItem<String>(
                                 alignment: Alignment
                                     .centerRight, // Align items to the right
@@ -392,15 +380,81 @@ class _MyFormWidgetState extends State<SignUpWidget> {
                   ),
                   // Conditionally show service fields if 'مزود خدمة' is selected
                   if (_selectedRole == 'مزود خدمة') ...[
-                    CustomTextField(
-                        controller: serviceDescriptionController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'يجب إدخال نوع الخدمة';
-                          }
-                          return null;
-                        },
-                        labelText: ' نوع الخدمة' + '(ميكانيكي , سباك ,..) '),
+                    // CustomTextField(
+                    //     controller: serviceDescriptionController,
+                    //     validator: (value) {
+                    //       if (value == null || value.isEmpty) {
+                    //         return 'يجب إدخال نوع الخدمة';
+                    //       }
+                    //       return null;
+                    //     },
+                    //     labelText: ' نوع الخدمة' + '(ميكانيكي , سباك ,..) '),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Directionality(
+                            textDirection: TextDirection
+                                .rtl, // This will make the arrow appear on the left
+                            child: DropdownButtonFormField<String>(
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 25.0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      10.0), // Rounded corners
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      10.0), // Rounded corners when not focused
+                                  borderSide: BorderSide(
+                                    color: Colors.grey, // Default border color
+                                    width: 1,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      10.0), // Rounded corners when focused
+                                  borderSide: BorderSide(
+                                    color: Colors
+                                        .grey, // Border color when focused
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                              isExpanded:
+                                  true, // Ensures the value text doesn't get clipped
+                              alignment: Alignment
+                                  .centerRight, // Align the selected value text to the right
+                              value: _selectedService,
+                              items: servicesType.map((String service) {
+                                return DropdownMenuItem<String>(
+                                  alignment: Alignment
+                                      .centerRight, // Align items to the right
+                                  value: service,
+                                  child: Text(service),
+                                );
+                              }).toList(),
+                              onChanged: (newValue) {
+                                setState(() {
+                                  _selectedService = newValue;
+                                });
+                              },
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'الرجاء اختيار الخدمة';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 40),
+                        Text(
+                          'نوع الخدمة',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
                     SizedBox(
                       height: 10,
                     ),

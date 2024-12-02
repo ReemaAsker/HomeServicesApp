@@ -3,13 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:home_services_app/cores/app_colors.dart';
 import 'package:home_services_app/cores/custom_widgets/custom_app_bar.dart';
+import 'package:home_services_app/cores/logic/firebaseLogic.dart';
 import 'package:home_services_app/cores/models/user.dart';
 import 'package:home_services_app/feature/mainUi/UserScreens/account_screen.dart';
+import 'package:home_services_app/feature/mainUi/providerScreens/providers_equipments.dart';
 
 import '../../../cores/custom_widgets/providerCard.dart';
 import '../../../cores/custom_widgets/rating_widget.dart';
-import '../../../cores/logic/authLogic.dart';
+import '../../../cores/logic/firebaseLogic.dart';
 
+//الصفحة الرئيسية لمزود الخدمة
 class ProviderHomePage extends StatefulWidget {
   @override
   _ProviderHomePageState createState() => _ProviderHomePageState();
@@ -17,7 +20,7 @@ class ProviderHomePage extends StatefulWidget {
 
 class _ProviderHomePageState extends State<ProviderHomePage> {
   int _currentIndex = 0;
-  final _auth = AuthService();
+  final _auth = FirebaseServices();
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +36,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'الحساب'),
+          BottomNavigationBarItem(icon: Icon(Icons.handyman), label: 'أدواتي'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'الرئيسية'),
         ],
       ),
@@ -45,7 +49,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       case 0:
         return AccountScreen();
       case 1:
-        return mainPageContent();
+        return EquipmentsPage();
       default:
         return mainPageContent(); // Main page is the default
     }
