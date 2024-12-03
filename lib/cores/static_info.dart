@@ -12,9 +12,10 @@ const List<String> areas = [
   'جازان',
   'القصيم',
   'الحدود الشمالية'
-]; // Sample area list
+];
 const List<String> servicesType = [
   'سباك',
   'فني كهرباء',
+  'ميكانيكي',
   'ربة منزل',
-]; // Sample area list
+];
