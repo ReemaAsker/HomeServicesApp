@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:home_services_app/cores/custom_widgets/custom_app_bar.dart';
 import 'package:home_services_app/cores/custom_widgets/custom_button.dart';
+import 'package:home_services_app/feature/mainUi/UserScreens/homePage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../cores/custom_widgets/tool_card.dart';
@@ -28,7 +29,7 @@ class EquipmentOfCurrentProvider extends StatefulWidget {
 
 class _EquipmentOfCurrentProviderState
     extends State<EquipmentOfCurrentProvider> {
-  final _auth = FirebaseServices();
+  final auth = FirebaseServices();
   String? toolMessageExtend;
   String subject = 'طلب الحصول على خدمة';
   String body =
@@ -45,6 +46,7 @@ class _EquipmentOfCurrentProviderState
               toolBody: body,
               servicePrice: servicePrice + widget.servicePrice,
               providerId: widget.providerId,
+              providerEmail: widget.providerEmail!,
             ),
           ));
     } else {
@@ -53,6 +55,7 @@ class _EquipmentOfCurrentProviderState
           MaterialPageRoute(
             builder: (context) => PaymentMethodsScreen(
               toolBody: "",
+              providerEmail: widget.providerEmail!,
               servicePrice: servicePrice + widget.servicePrice,
               providerId: widget.providerId,
             ),
@@ -378,7 +381,7 @@ class _EquipmentOfCurrentProviderState
 class PaymentMethodsScreen extends StatefulWidget {
   final String providerId;
   final String? currentUserEmail;
-  final String? providerEmail;
+  final String providerEmail;
   final double? servicePrice;
   final String? toolBody;
 
@@ -386,7 +389,7 @@ class PaymentMethodsScreen extends StatefulWidget {
     Key? key,
     required this.providerId,
     this.currentUserEmail,
-    this.providerEmail,
+    required this.providerEmail,
     this.servicePrice,
     this.toolBody,
   }) : super(key: key);
@@ -396,6 +399,8 @@ class PaymentMethodsScreen extends StatefulWidget {
 }
 
 class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
+  final auth = FirebaseServices();
+
   // Payment methods data
   final List<Map<String, dynamic>> paymentMethods = [
     {
@@ -532,7 +537,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                                     value.length != 16) {
                                   return "خطأ";
                                 } else if (field['label'] == "رقم الحساب" &&
-                                    value.length != 6) {
+                                    value.length != 5) {
                                   return "خطأ";
                                 }
                                 return null;
@@ -633,11 +638,16 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
 
     try {
       if (await canLaunchUrl(emailLaunchUri)) {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(),
+            ));
         await launchUrl(emailLaunchUri);
+        await auth.addRequest(widget.providerId);
       } else {
         throw 'Could not launch $emailLaunchUri';
       }
-      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not launch email client')),

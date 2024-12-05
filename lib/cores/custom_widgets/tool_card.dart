@@ -142,33 +142,33 @@ class _ToolCardState extends State<ToolCard> {
             },
           ),
         ),
-        if (widget.buyAviable)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                if (_addedItemsList.isNotEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("الإجمالي: $_totalPrice ريال"),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("يرجى إضافة أدوات لحساب الإجمالي"),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-              ),
-              child: Text("طلب الخدمة"),
-            ),
-          ),
+        // if (widget.buyAviable)
+        //   Padding(
+        //     padding: const EdgeInsets.all(16.0),
+        //     child: ElevatedButton(
+        //       onPressed: () {
+        //         if (_addedItemsList.isNotEmpty) {
+        //           ScaffoldMessenger.of(context).showSnackBar(
+        //             SnackBar(
+        //               content: Text("الإجمالي: $_totalPrice ريال"),
+        //               duration: Duration(seconds: 2),
+        //             ),
+        //           );
+        //         } else {
+        //           ScaffoldMessenger.of(context).showSnackBar(
+        //             SnackBar(
+        //               content: Text("يرجى إضافة أدوات لحساب الإجمالي"),
+        //               duration: Duration(seconds: 2),
+        //             ),
+        //           );
+        //         }
+        //       },
+        //       style: ElevatedButton.styleFrom(
+        //         backgroundColor: AppColors.primaryColor,
+        //       ),
+        //       child: Text("طلب الخدمة"),
+        //     ),
+        //   ),
       ],
     );
   }
