@@ -54,5 +54,8 @@ The application utilizes the following Flutter packages:
 - `📦 url_launcher: ^6.3.0`
 - `📦 flutter_switch: ^0.3.2`
 ---
-<img src= "/screen_shoutes/">
+<img src= "/screen_shoutes/home1.jpg">
+<img src= "/screen_shoutes/home2.jpg">
+<img src= "/screen_shoutes/home3.jpg">
+<img src= "/screen_shoutes/home4.jpg">
 
