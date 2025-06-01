@@ -53,8 +53,6 @@ The application utilizes the following Flutter packages:
 - `📦 flutter_rating_bar: ^4.0.1`
 - `📦 url_launcher: ^6.3.0`
 - `📦 flutter_switch: ^0.3.2`
+---
+<img src= "/screen_shoutes/home1.jpge">
 
-
-![Home Service App Screenshot](/screen_shoutes/home1.jpge)
-
-----
